@@ -23,7 +23,7 @@ export async function registerUserController (req, res) {
   }
 }
 
-export async function verifyUserController (req, res) {
+export async function validationUserController (req, res) {
   const { code, password } = req.body
   try {
     const { user, token } = await confirmUserVerification({ email: req.user.email, code, password })
