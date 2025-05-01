@@ -2,9 +2,9 @@ import { Schema, model } from 'mongoose'
 
 const deliveryNoteSchema = new Schema({
   name: { type: String, required: true },
-  user: {
+  project: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Project',
     required: true
   },
   archived: {
