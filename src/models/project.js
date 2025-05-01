@@ -2,9 +2,9 @@ import { Schema, model } from 'mongoose'
 
 const projectSchema = new Schema({
   name: { type: String, required: true },
-  user: {
+  client: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Client',
     required: true
   },
   archived: {
