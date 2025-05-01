@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose'
 
-const projectSchema = new Schema({
+const deliveryNoteSchema = new Schema({
   name: { type: String, required: true },
   user: {
     type: Schema.Types.ObjectId,
@@ -14,6 +14,6 @@ const projectSchema = new Schema({
   archivedAt: {
     type: Date
   }
-})
+}, { timestamps: true })
 
-export const Project = model('Project', projectSchema)
+export const DeliveryNote = model('DeliveryNote', deliveryNoteSchema)
