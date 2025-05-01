@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import {
   registerUserController,
-  verifyUserController,
+  validationUserController,
   loginUserController,
   updateUserProfileController,
   updateUserCompanyController,
@@ -61,9 +61,9 @@ userRouter.post('/register', validateRegister, registerUserController)
 
 /**
  * @swagger
- * /verify:
+ * /validation:
  *   put:
- *     summary: Verificar un usuario
+ *     summary: Verificar el correo de un usuario
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -74,7 +74,7 @@ userRouter.post('/register', validateRegister, registerUserController)
  *         description: No autorizado
  */
 
-userRouter.put('/verify', authMiddleware(), validateVerification, verifyUserController)
+userRouter.put('/validation', authMiddleware(), validateVerification, validationUserController)
 
 /**
  * @swagger
@@ -104,7 +104,7 @@ userRouter.post('/login', validateLogin, loginUserController)
 
 /**
  * @swagger
- * /register:
+ * /:
  *   patch:
  *     summary: Actualizar el perfil del usuario
  *     tags: [Users]
@@ -128,7 +128,7 @@ userRouter.post('/login', validateLogin, loginUserController)
  *         description: Error de validación
  */
 
-userRouter.patch('/register', authMiddleware(), validateUpdateRegistration, updateUserProfileController)
+userRouter.patch('/', authMiddleware(), validateUpdateRegistration, updateUserProfileController)
 
 /**
  * @swagger
