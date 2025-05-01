@@ -1,9 +1,9 @@
-import mongoose from 'mongoose'
+import { Schema, model } from 'mongoose'
 
-const clientSchema = new mongoose.Schema({
+const clientSchema = new Schema({
   name: { type: String, required: true },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
@@ -16,4 +16,4 @@ const clientSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-export const Client = mongoose.model('Client', clientSchema)
+export const Client = model('Client', clientSchema)
