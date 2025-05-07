@@ -10,18 +10,14 @@ import {
 } from '../services/client.js'
 
 export async function createClientController (req, res) {
-  const { name } = req.body
+  const { name, cif, address } = req.body
   const userId = req.user._id
 
-  if (!name) {
-    return res.status(400).send({ status: 400, message: 'Client name is required' })
-  }
-
   try {
-    const client = await createClient({ name, userId })
-    res.status(201).send({ status: 201, data: client })
+    const client = await createClient({ name, cif, address, userId })
+    res.status(201).send({ status: 201, data: { client } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error creating client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
@@ -30,28 +26,22 @@ export async function updateClientController (req, res) {
   const { name } = req.body
   const userId = req.user._id
 
-  if (!name) {
-    return res.status(400).send({ status: 400, message: 'Client name is required for update' })
-  }
-
   try {
     const updatedClient = await updateClient({ clientId: id, userId, data: { name } })
-    if (!updatedClient) {
-      return res.status(404).send({ status: 404, message: 'Client not found or user unauthorized' })
-    }
-    res.status(200).send({ status: 200, data: updatedClient })
+    res.status(200).send({ status: 200, data: { client: updatedClient } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error updating client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
 export async function getClientsController (req, res) {
   const userId = req.user._id
+
   try {
     const clients = await getClients({ userId })
-    res.status(200).send({ status: 200, data: clients })
+    res.status(200).send({ status: 200, data: { clients } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error fetching clients' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
@@ -61,12 +51,9 @@ export async function getClientByIdController (req, res) {
 
   try {
     const client = await getClientById({ clientId: id, userId })
-    if (!client) {
-      return res.status(404).send({ status: 404, message: 'Client not found or user unauthorized' })
-    }
     res.status(200).send({ status: 200, data: client })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error fetching client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
@@ -75,23 +62,21 @@ export async function deleteClientByIdController (req, res) {
   const userId = req.user._id
 
   try {
-    const result = await deleteClient({ clientId: id, userId })
-    if (!result) {
-      return res.status(404).send({ status: 404, message: 'Client not found or user unauthorized' })
-    }
-    res.status(204).send()
+    await deleteClient({ clientId: id, userId })
+    res.status(204).send({ status: 204 })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error deleting client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
 export async function getArchivedClientsController (req, res) {
   const userId = req.user._id
+
   try {
     const archivedClients = await getArchivedClients({ userId })
-    res.status(200).send({ status: 200, data: archivedClients })
+    res.status(200).send({ status: 200, data: { clients: archivedClients } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error fetching archived clients' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
@@ -101,12 +86,9 @@ export async function getArchivedClientByIdController (req, res) {
 
   try {
     const client = await getArchivedClientById({ clientId: id, userId })
-    if (!client) {
-      return res.status(404).send({ status: 404, message: 'Archived client not found or user unauthorized' })
-    }
-    res.status(200).send({ status: 200, data: client })
+    res.status(200).send({ status: 200, data: { client } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error fetching archived client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }
 
@@ -116,11 +98,8 @@ export async function recoverArchivedClientByIdController (req, res) {
 
   try {
     const recoveredClient = await recoverArchivedClient({ clientId: id, userId })
-    if (!recoveredClient) {
-      return res.status(404).send({ status: 404, message: 'Archived client not found or user unauthorized for recovery' })
-    }
-    res.status(200).send({ status: 200, data: recoveredClient })
+    res.status(200).send({ status: 200, data: { client: recoveredClient } })
   } catch (error) {
-    res.status(500).send({ status: 500, message: error.message || 'Error recovering client' })
+    res.status(500).send({ status: 500, message: error.message })
   }
 }

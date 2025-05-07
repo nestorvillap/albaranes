@@ -11,13 +11,26 @@ import {
   sendUserInvitation,
   updatePassword
 } from '../services/user.js'
-import formidable from 'formidable'
 
 export async function registerUserController (req, res) {
   const { email, password } = req.body
+
   try {
     const { user, token } = await createUserAccount({ email, password })
-    res.status(201).send({ status: 201, data: { user: { email: user.email, verified: user.verified, role: user.role, _id: user._id }, token } })
+
+    res.status(201).send(
+      {
+        status: 201,
+        data: {
+          user: {
+            email: user.email,
+            verified: user.verified,
+            role: user.role,
+            _id: user._id
+          },
+          token
+        }
+      })
   } catch (error) {
     res.status(409).send({ status: 409, message: 'email already register' })
   }
@@ -25,9 +38,22 @@ export async function registerUserController (req, res) {
 
 export async function validationUserController (req, res) {
   const { code, password } = req.body
+  const { email } = req.user.email
+
   try {
-    const { user, token } = await confirmUserVerification({ email: req.user.email, code, password })
-    res.status(200).send({ status: 200, data: { user: { email: user.email, verified: user.verified, role: user.role, _id: user._id }, token } })
+    const { user, token } = await confirmUserVerification({ email, code, password })
+    res.status(200).send({
+      status: 200,
+      data: {
+        user: {
+          email: user.email,
+          verified: user.verified,
+          role: user.role,
+          _id: user._id
+        },
+        token
+      }
+    })
   } catch (error) {
     res.status(400).send({ status: 400, message: error.message })
   }
@@ -35,26 +61,54 @@ export async function validationUserController (req, res) {
 
 export async function loginUserController (req, res) {
   const { email, password } = req.body
+
   try {
     const { user, token } = await authenticateUser({ email, password })
-    res.status(200).send({ status: 200, data: { user: { email: user.email, role: user.role, _id: user._id }, token } })
+    res.status(200).send({
+      status: 200,
+      data: {
+        user: {
+          email: user.email,
+          role: user.role,
+          _id: user._id
+        },
+        token
+      }
+    })
   } catch (error) {
     res.status(400).send({ status: 400, message: error.message })
   }
 }
 
 export async function updateUserProfileController (req, res) {
+  const { userId } = req.user._id
+  const { email, name, surnames, nif } = req.body
+  const data = { email, name, surnames, nif }
+
   try {
-    const { user } = await modifyUserProfile({ userId: req.user._id, data: req.body })
-    res.status(200).send({ status: 200, data: { user: { email: user.email, name: user.name, surnames: user.surnames, nif: user.nif } } })
+    const { user } = await modifyUserProfile({ userId, data })
+    res.status(200).send({
+      status: 200,
+      data: {
+        user: {
+          email: user.email,
+          name: user.name,
+          surnames: user.surnames,
+          nif: user.nif
+        }
+      }
+    })
   } catch (error) {
     res.status(400).send({ status: 400, message: error.message })
   }
 }
 
 export async function updateUserCompanyController (req, res) {
+  const { company } = req.body.company
+  const { userId } = req.user._id
+
   try {
-    const { user } = await modifyUserCompanyDetails({ userId: req.user._id, company: req.body.company })
+    const { user } = await modifyUserCompanyDetails({ userId, company })
     res.status(200).send({
       status: 200,
       data: {
@@ -75,23 +129,27 @@ export async function updateUserCompanyController (req, res) {
 }
 
 export async function updateUserLogoController (req, res) {
-  const form = formidable({})
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      return res.status(400).send({ status: 400, message: 'Error parsing the file' })
-    }
-    try {
-      const { user } = await uploadUserLogo({ userId: req.user._id, file: files.image[0] })
-      res.status(200).send({ status: 200, data: { logo: user.logo } })
-    } catch (error) {
-      res.status(400).send({ status: 400, message: error.message })
-    }
-  })
+  const { file } = req.file
+  const { userId } = req.user._id
+
+  try {
+    const { user } = await uploadUserLogo({ userId, file })
+    res.status(200).send({
+      status: 200,
+      data: {
+        logo: user.logo
+      }
+    })
+  } catch (error) {
+    res.status(400).send({ status: 400, message: error.message })
+  }
 }
 
 export async function getUserDetailsController (req, res) {
+  const { userId } = req.user._id
+
   try {
-    const { user } = await fetchUserDetails({ userId: req.user._id })
+    const { user } = await fetchUserDetails({ userId })
     res.status(200).send({
       status: 200,
       data: {
@@ -112,8 +170,10 @@ export async function getUserDetailsController (req, res) {
 
 export async function deleteUserController (req, res) {
   const { soft } = req.query
+  const { userId } = req.user._id
+
   try {
-    await removeUserAccount({ userId: req.user._id, soft })
+    await removeUserAccount({ userId, soft })
     res.status(200).send({ status: 200 })
   } catch (error) {
     res.status(500).send({ status: 500, message: error.message })
@@ -122,6 +182,7 @@ export async function deleteUserController (req, res) {
 
 export async function recoverPasswordController (req, res) {
   const { email } = req.body
+
   try {
     await initiatePasswordRecovery({ email })
     res.status(200).send({ status: 200 })
@@ -132,9 +193,20 @@ export async function recoverPasswordController (req, res) {
 
 export async function inviteUserController (req, res) {
   const { email } = req.body
+  const { inviterId } = req.user._id
+
   try {
-    const newUser = await sendUserInvitation({ email, inviterId: req.user._id })
-    res.status(201).send({ status: 201, data: { user: { email: newUser.email, role: newUser.role, _id: newUser._id } } })
+    const newUser = await sendUserInvitation({ email, inviterId })
+    res.status(201).send({
+      status: 201,
+      data: {
+        user: {
+          email: newUser.email,
+          role: newUser.role,
+          _id: newUser._id
+        }
+      }
+    })
   } catch (error) {
     res.status(500).send({ status: 500, message: error.message })
   }
@@ -142,9 +214,20 @@ export async function inviteUserController (req, res) {
 
 export async function updatePasswordController (req, res) {
   const { email, password, code } = req.body
+
   try {
     const { user, token } = await updatePassword({ email, password, code })
-    res.status(201).send({ status: 201, data: { user: { email: user.email, role: user.role, _id: user._id }, token } })
+    res.status(201).send({
+      status: 201,
+      data: {
+        user: {
+          email: user.email,
+          role: user.role,
+          _id: user._id
+        },
+        token
+      }
+    })
   } catch (error) {
     res.status(500).send({ status: 500, message: error.message })
   }

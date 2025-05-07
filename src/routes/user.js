@@ -23,6 +23,7 @@ import {
   validateUpdatePassword
 } from '../validators/user.js'
 import { authMiddleware } from '../middlewares/authMiddleware.js'
+import { storageMiddleware } from '../middlewares/storageMiddleware.js'
 
 const userRouter = Router()
 
@@ -183,7 +184,7 @@ userRouter.patch('/company', authMiddleware(), validateUpdateCompany, updateUser
  *         description: Error de validación
  */
 
-userRouter.patch('/logo', authMiddleware(), updateUserLogoController)
+userRouter.patch('/logo', authMiddleware(), storageMiddleware.image, updateUserLogoController)
 
 /**
  * @swagger

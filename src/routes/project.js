@@ -22,16 +22,17 @@ const projectRouter = Router()
 
 // Middleware de autenticación
 // projectRouter.use(authMiddleware())
-// Crear, actualizar, obtener y eliminar proyectos
+
+// Rutas específicas PRIMERO
+projectRouter.get('/archived', getArchivedProjectsController)
+projectRouter.get('/archived/:id', getArchivedProjectByIdController)
+projectRouter.patch('/archived/:id', recoverArchivedProjectByIdController)
+
+// Rutas generales y con parámetros DESPUÉS
 projectRouter.post('/', createProjectController)
 projectRouter.patch('/', updateProjectController)
 projectRouter.get('/', getProjectsController)
 projectRouter.get('/:id', getProjectByIdController)
 projectRouter.delete('/:id', deleteProjectByIdController)
-
-// Rutas para proyectos archivados
-projectRouter.get('/archived', getArchivedProjectsController)
-projectRouter.get('/archived/:id', getArchivedProjectByIdController)
-projectRouter.patch('/archived/:id', recoverArchivedProjectByIdController)
 
 export { projectRouter }
